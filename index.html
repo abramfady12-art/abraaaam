@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>كاشف الآية | نظام المسح الضوئي</title>
+    <title>نظام الكشف الضوئي المتقدم</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -17,18 +16,91 @@
             --text-light: #ffffff;
         }
 
-        body {
+        body, html {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: var(--bg-dark);
             color: var(--text-light);
             font-family: 'Tajawal', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- شاشة التحميل (Splash Screen) --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
         }
 
-        /* الجزء الجديد: العنوان العريض */
+        .splash-logo {
+            width: 250px;
+            height: auto;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+
+        .loader-container {
+            width: 280px;
+            text-align: center;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .percentage {
+            margin-top: 10px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* --- الواجهة الرئيسية (Main UI) --- */
+        #main-content {
+            display: none; /* مخفي في البداية */
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
         .official-header {
             width: 100%;
             background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
@@ -39,11 +111,10 @@
 
         .main-title {
             font-size: 1.8rem;
-            font-weight: 900; /* خط عريض جداً */
+            font-weight: 900;
             color: var(--primary-color);
             margin: 0;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
         }
 
         .sub-title {
@@ -120,37 +191,77 @@
 </head>
 <body>
 
-<div class="official-header">
-    <h1 class="main-title">الإدارة العامة لمكافحة....</h1>
-    <div class="sub-title">نظام الكشف الضوئي المتقدم ✨</div>
+<div id="splash-screen">
+    <img src="https://i.ibb.co/L6VvCWh/image.png" alt="Logo" class="splash-logo">
+    <div class="loader-container">
+        <div class="loading-text">جاري فحص النظام...</div>
+        <div class="progress-bar-bg">
+            <div id="progress-fill"></div>
+        </div>
+        <div class="percentage" id="percent-text">0%</div>
+    </div>
 </div>
 
-<div class="viewer-container">
-    <div class="scan-overlay"></div>
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-</div>
-
-<button id="start-btn" class="btn-main" style="width: 250px; margin-bottom: 30px;" onclick="startCamera()">ابدأ عملية الكشف</button>
-
-<div class="controls-panel" id="ui-controls">
-    <div class="control-group">
-        <label>مستوى التباين (Contrast)</label>
-        <input type="range" id="contrast" min="0" max="150" value="80">
+<div id="main-content">
+    <div class="official-header">
+        <h1 class="main-title">الإدارة العامة لمكافحة....</h1>
+        <div class="sub-title">نظام الكشف الضوئي المتقدم ✨</div>
     </div>
 
-    <div class="control-group">
-        <label>عزل الخلفية (Threshold)</label>
-        <input type="range" id="threshold" min="0" max="255" value="128">
+    <div class="viewer-container">
+        <div class="scan-overlay"></div>
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
     </div>
 
-    <div class="buttons-row">
-        <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">وضع الحواف</button>
-        <button class="btn-outline" style="border-color: #555; color: #aaa;" onclick="location.reload()">إغلاق</button>
+    <button id="start-btn" class="btn-main" style="width: 250px; margin-bottom: 30px;" onclick="startCamera()">ابدأ عملية الكشف</button>
+
+    <div class="controls-panel" id="ui-controls">
+        <div class="control-group">
+            <label>مستوى التباين (Contrast)</label>
+            <input type="range" id="contrast" min="0" max="150" value="80">
+        </div>
+
+        <div class="control-group">
+            <label>عزل الخلفية (Threshold)</label>
+            <input type="range" id="threshold" min="0" max="255" value="128">
+        </div>
+
+        <div class="buttons-row">
+            <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">وضع الحواف</button>
+            <button class="btn-outline" style="border-color: #555; color: #aaa;" onclick="location.reload()">إعادة تشغيل</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // --- منطق عداد التحميل ---
+    window.onload = function() {
+        let count = 0;
+        let progressFill = document.getElementById('progress-fill');
+        let percentText = document.getElementById('percent-text');
+        let splash = document.getElementById('splash-screen');
+        let main = document.getElementById('main-content');
+
+        let interval = setInterval(() => {
+            count++;
+            progressFill.style.width = count + "%";
+            percentText.innerText = count + "%";
+
+            if (count >= 100) {
+                clearInterval(interval);
+                // إخفاء شاشة التحميل وإظهار المحتوى
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    main.style.display = 'flex';
+                    setTimeout(() => main.style.opacity = '1', 50);
+                }, 800);
+            }
+        }, 30); // 30ms * 100 = 3000ms (3 ثوانٍ)
+    };
+
+    // --- منطق الكاميرا والمعالجة ---
     let video = document.getElementById("video");
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d", { alpha: false });
