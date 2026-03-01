@@ -24,7 +24,7 @@
             background-color: var(--bg-dark);
             color: var(--text-light);
             font-family: 'Tajawal', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* --- شاشة التحميل (Splash Screen) --- */
@@ -40,14 +40,15 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
-            transition: opacity 0.8s ease-out, visibility 0.8s;
+            transition: opacity 0.8s ease-out;
         }
 
         .splash-logo {
             width: 250px;
+            max-width: 70%;
             height: auto;
             margin-bottom: 30px;
-            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
             animation: pulse 2s infinite ease-in-out;
         }
 
@@ -63,40 +64,43 @@
         }
 
         .loading-text {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--primary-color);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
             font-weight: 700;
         }
 
         .progress-bar-bg {
             width: 100%;
-            height: 4px;
-            background: #333;
+            height: 6px;
+            background: #222;
             border-radius: 10px;
+            border: 1px solid #333;
             overflow: hidden;
         }
 
         #progress-fill {
             width: 0%;
             height: 100%;
-            background: var(--primary-color);
-            transition: width 0.1s linear;
+            background: linear-gradient(90deg, #b8860b, #d4af37);
             box-shadow: 0 0 10px var(--primary-color);
         }
 
         .percentage {
-            margin-top: 10px;
-            font-size: 1.5rem;
+            margin-top: 15px;
+            font-size: 1.8rem;
             font-weight: 900;
             color: #fff;
         }
 
         /* --- الواجهة الرئيسية (Main UI) --- */
         #main-content {
-            display: none; /* مخفي في البداية */
+            display: none;
             flex-direction: column;
             align-items: center;
+            height: 100vh;
+            overflow-y: auto;
             opacity: 0;
             transition: opacity 1s ease-in;
         }
@@ -104,35 +108,33 @@
         .official-header {
             width: 100%;
             background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
-            padding: 30px 0 15px 0;
+            padding: 25px 0;
             text-align: center;
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .main-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 900;
             color: var(--primary-color);
             margin: 0;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .sub-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--accent-color);
-            margin-top: 8px;
-            opacity: 0.8;
+            margin-top: 5px;
         }
 
         .viewer-container {
             position: relative;
-            width: 92%;
-            max-width: 480px;
-            margin: 25px auto;
-            border-radius: 24px;
+            width: 90%;
+            max-width: 450px;
+            margin: 20px auto;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+            border: 2px solid #333;
             background: #000;
         }
 
@@ -141,49 +143,46 @@
 
         .scan-overlay {
             position: absolute;
-            top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 2px solid rgba(46, 204, 113, 0.3);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(46, 204, 113, 0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(46, 204, 113, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
             pointer-events: none;
-            z-index: 10;
         }
 
         .controls-panel {
-            width: 90%;
-            max-width: 480px;
+            width: 85%;
+            max-width: 450px;
             background: var(--card-bg);
-            padding: 25px;
-            border-radius: 24px;
-            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
             border: 1px solid #2a2a2a;
         }
 
-        .control-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; font-size: 0.95rem; margin-bottom: 12px; color: #ccc; }
+        .control-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 8px; color: #aaa; }
 
         input[type="range"] {
             width: 100%;
-            height: 6px;
-            background: #333;
-            border-radius: 5px;
             accent-color: var(--primary-color);
-            appearance: none;
         }
 
-        .buttons-row { display: flex; gap: 12px; margin-top: 10px; }
+        .buttons-row { display: flex; gap: 10px; }
 
         button {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             font-family: 'Tajawal';
             font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
         }
 
-        .btn-main { background: var(--primary-color); color: #000; font-size: 1.1rem; }
-        .btn-outline { background: #222; border: 1.5px solid var(--accent-color); color: var(--accent-color); }
+        .btn-main { background: var(--primary-color); color: #000; }
+        .btn-outline { background: #222; border: 1px solid var(--accent-color); color: var(--accent-color); }
         .btn-outline.active { background: var(--accent-color); color: white; }
 
         #ui-controls { display: none; }
@@ -192,9 +191,9 @@
 <body>
 
 <div id="splash-screen">
-    <img src="https://i.ibb.co/L6VvCWh/image.png" alt="Logo" class="splash-logo">
+    <img src="https://i.ibb.co/L6VvCWh/image.png" alt="Official Logo" class="splash-logo">
     <div class="loader-container">
-        <div class="loading-text">جاري فحص النظام...</div>
+        <div class="loading-text">نظام المسح المتقدم.. جاري التحميل</div>
         <div class="progress-bar-bg">
             <div id="progress-fill"></div>
         </div>
@@ -214,11 +213,11 @@
         <canvas id="canvas"></canvas>
     </div>
 
-    <button id="start-btn" class="btn-main" style="width: 250px; margin-bottom: 30px;" onclick="startCamera()">ابدأ عملية الكشف</button>
+    <button id="start-btn" class="btn-main" style="width: 200px; margin-bottom: 20px;" onclick="startCamera()">ابدأ المسح الضوئي</button>
 
     <div class="controls-panel" id="ui-controls">
         <div class="control-group">
-            <label>مستوى التباين (Contrast)</label>
+            <label>قوة التباين (Contrast)</label>
             <input type="range" id="contrast" min="0" max="150" value="80">
         </div>
 
@@ -228,29 +227,30 @@
         </div>
 
         <div class="buttons-row">
-            <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">وضع الحواف</button>
-            <button class="btn-outline" style="border-color: #555; color: #aaa;" onclick="location.reload()">إعادة تشغيل</button>
+            <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">رؤية الحواف</button>
+            <button class="btn-outline" style="border-color: #444; color: #888;" onclick="location.reload()">خروج</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- منطق عداد التحميل ---
-    window.onload = function() {
+    // --- عداد التحميل ---
+    window.addEventListener('DOMContentLoaded', () => {
         let count = 0;
-        let progressFill = document.getElementById('progress-fill');
-        let percentText = document.getElementById('percent-text');
-        let splash = document.getElementById('splash-screen');
-        let main = document.getElementById('main-content');
+        const progressFill = document.getElementById('progress-fill');
+        const percentText = document.getElementById('percent-text');
+        const splash = document.getElementById('splash-screen');
+        const main = document.getElementById('main-content');
 
-        let interval = setInterval(() => {
+        const speed = 30; // 30ms * 100 = 3000ms (3 ثواني)
+        
+        const timer = setInterval(() => {
             count++;
             progressFill.style.width = count + "%";
             percentText.innerText = count + "%";
 
             if (count >= 100) {
-                clearInterval(interval);
-                // إخفاء شاشة التحميل وإظهار المحتوى
+                clearInterval(timer);
                 splash.style.opacity = '0';
                 setTimeout(() => {
                     splash.style.display = 'none';
@@ -258,10 +258,10 @@
                     setTimeout(() => main.style.opacity = '1', 50);
                 }, 800);
             }
-        }, 30); // 30ms * 100 = 3000ms (3 ثوانٍ)
-    };
+        }, speed);
+    });
 
-    // --- منطق الكاميرا والمعالجة ---
+    // --- نظام الكاميرا ---
     let video = document.getElementById("video");
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d", { alpha: false });
@@ -278,7 +278,7 @@
     async function startCamera(){
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment", width: 1280, height: 720 }
+                video: { facingMode: "environment" }
             });
             video.srcObject = stream;
             document.getElementById('start-btn').style.display = 'none';
@@ -290,7 +290,7 @@
                 processFrame();
             }
         } catch (err) {
-            alert("فشل الوصول للكاميرا. تأكد من إعطاء الإذن.");
+            alert("يرجى السماح بالوصول للكاميرا لتشغيل النظام.");
         }
     }
 
@@ -299,13 +299,13 @@
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let data = imageData.data;
+        
         let contrast = parseInt(contrastSlider.value);
         let threshold = parseInt(thresholdSlider.value);
         let factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
 
         for(let i=0; i<data.length; i+=4){
-            let r = data[i], g = data[i+1], b = data[i+2];
-            let gray = 0.2126*r + 0.7152*g + 0.0722*b;
+            let gray = 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
             gray = factor * (gray - 128) + 128;
 
             if(edgeMode){
