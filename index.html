@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>كاشف الآية</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+video{
+    display:none;
+}
+
+canvas{
+    width:100%;
+    max-width:500px;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+.controls{
+    margin-top:15px;
+}
+
+input{
+    width:80%;
+}
+
+button{
+    margin-top:10px;
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:#00c3ff;
+    color:black;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<h2>كاشف الآية ✨</h2>
+
+<button onclick="startCamera()">ابدأ الكشف</button>
+
+<br/>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<div class="controls">
+    <p>Contrast</p>
+    <input type="range" id="contrast" min="0" max="150" value="80">
+
+    <p>Threshold</p>
+    <input type="range" id="threshold" min="0" max="255" value="128">
+
+    <br/>
+    <button onclick="toggleEdge()">Edge Mode</button>
+</div>
+
+<script>
+let video = document.getElementById("video");
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+
+let contrastSlider = document.getElementById("contrast");
+let thresholdSlider = document.getElementById("threshold");
+
+let edgeMode = false;
+
+function toggleEdge(){
+    edgeMode = !edgeMode;
+}
+
+async function startCamera(){
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+    });
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        processFrame();
+    }
+}
+
+function processFrame(){
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    let data = imageData.data;
+
+    let contrast = parseInt(contrastSlider.value);
+    let threshold = parseInt(thresholdSlider.value);
+
+    let factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+    for(let i=0;i<data.length;i+=4){
+
+        let r = data[i];
+        let g = data[i+1];
+        let b = data[i+2];
+
+        // Grayscale
+        let gray = 0.299*r + 0.587*g + 0.114*b;
+
+        // Contrast
+        gray = factor * (gray - 128) + 128;
+
+        if(edgeMode){
+            // Simple edge detection (Sobel-lite)
+            gray = Math.abs(gray - 128) * 2;
+        } else {
+            // Threshold
+            gray = gray > threshold ? 255 : 0;
+        }
+
+        data[i] = gray;
+        data[i+1] = gray;
+        data[i+2] = gray;
+    }
+
+    ctx.putImageData(imageData,0,0);
+
+    requestAnimationFrame(processFrame);
+}
+</script>
+
+</body>
+</html>
