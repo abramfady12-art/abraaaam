@@ -1,5 +1,4 @@
-
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
@@ -32,11 +31,12 @@
         }
 
         .splash-logo {
-            /* تعديل الحجم هنا */
-            width: 180px; 
-            height: auto; 
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.5));
+            /* تعديل الحجم الصغير والمؤكد */
+            width: 120px !important; 
+            height: 120px !important;
+            object-fit: contain;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
             animation: pulse 2s infinite ease-in-out;
         }
 
@@ -46,29 +46,26 @@
             100% { transform: scale(1); opacity: 0.9; }
         }
 
-        .loader-container { width: 300px; text-align: center; }
-        .loading-text { color: var(--primary-color); margin-bottom: 15px; font-weight: 700; font-size: 1.1rem; }
-        .progress-bar-bg { width: 100%; height: 6px; background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #333; }
-        #progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #b8860b, #d4af37); box-shadow: 0 0 15px var(--primary-color); }
-        .percentage { margin-top: 15px; font-size: 1.8rem; font-weight: 900; color: #fff; }
+        .loader-container { width: 250px; text-align: center; }
+        .loading-text { color: var(--primary-color); margin-bottom: 15px; font-weight: 700; font-size: 1rem; }
+        .progress-bar-bg { width: 100%; height: 5px; background: #222; border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+        #progress-fill { width: 0%; height: 100%; background: var(--primary-color); box-shadow: 0 0 10px var(--primary-color); }
+        .percentage { margin-top: 10px; font-size: 1.5rem; font-weight: 900; color: #fff; }
 
         /* الواجهة الرئيسية */
         #main-content { display: none; flex-direction: column; align-items: center; height: 100vh; overflow-y: auto; opacity: 0; transition: opacity 1s ease-in; }
-        .official-header { width: 100%; background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%); padding: 25px 0; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
-        .main-title { font-size: 1.6rem; font-weight: 900; color: var(--primary-color); margin: 0; text-shadow: 0 2px 10px #000; }
-        .viewer-container { position: relative; width: 92%; max-width: 480px; margin: 25px auto; border-radius: 25px; overflow: hidden; border: 2px solid #333; background: #000; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .official-header { width: 100%; background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%); padding: 20px 0; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+        .main-title { font-size: 1.5rem; font-weight: 900; color: var(--primary-color); margin: 0; }
+        .viewer-container { position: relative; width: 90%; max-width: 450px; margin: 20px auto; border-radius: 20px; overflow: hidden; border: 2px solid #333; background: #000; }
         canvas { display: block; width: 100%; height: auto; }
         .scan-line { position: absolute; width: 100%; height: 2px; background: var(--accent-color); top: 0; box-shadow: 0 0 15px var(--accent-color); animation: scan 3s linear infinite; z-index: 5; display: none; }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        .controls-panel { width: 85%; max-width: 450px; background: var(--card-bg); padding: 25px; border-radius: 25px; border: 1px solid #2a2a2a; margin-bottom: 40px; }
-        .control-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; font-size: 0.9rem; color: #aaa; margin-bottom: 10px; }
-        input[type="range"] { width: 100%; accent-color: var(--primary-color); cursor: pointer; }
+        .controls-panel { width: 85%; max-width: 400px; background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid #2a2a2a; margin-bottom: 30px; }
+        input[type="range"] { width: 100%; accent-color: var(--primary-color); }
         .btn-row { display: flex; gap: 10px; margin-top: 10px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 15px; font-family: 'Tajawal'; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-        .btn-main { background: var(--primary-color); color: #000; width: 230px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
-        .btn-outline { background: #222; border: 1.5px solid var(--accent-color); color: var(--accent-color); }
-        .btn-outline.active { background: var(--accent-color); color: #000; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-family: 'Tajawal'; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-main { background: var(--primary-color); color: #000; width: 220px; margin-bottom: 15px; }
+        .btn-outline { background: #222; border: 1px solid var(--accent-color); color: var(--accent-color); }
     </style>
 </head>
 <body>
@@ -76,7 +73,7 @@
 <div id="splash-screen">
     <img src="WhatsApp Image 2026-03-02 at 12.34.34 AM.jpeg" class="splash-logo">
     <div class="loader-container">
-        <div class="loading-text">جاري مزامنة قاعدة البيانات...</div>
+        <div class="loading-text">جاري فحص تصاريح الدخول...</div>
         <div class="progress-bar-bg">
             <div id="progress-fill"></div>
         </div>
@@ -93,15 +90,12 @@
         <video id="video" autoplay playsinline style="display:none"></video>
         <canvas id="canvas"></canvas>
     </div>
-    <button id="start-btn" class="btn-main" onclick="startCamera()">تنشيط الماسح الضوئي</button>
+    <button id="start-btn" class="btn-main" onclick="startCamera()">تنشيط النظام</button>
     <div class="controls-panel" id="ui-controls" style="display:none">
-        <div class="control-group">
-            <label>مستوى التباين الرقمي</label>
-            <input type="range" id="contrast" min="0" max="150" value="80">
-        </div>
+        <input type="range" id="contrast" min="0" max="150" value="80" style="margin-bottom:15px">
         <div class="btn-row">
-            <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">رؤية ليلية / حواف</button>
-            <button class="btn-outline" style="border-color:#555; color:#888" onclick="location.reload()">إغلاق النظام</button>
+            <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">الوضع الليلي</button>
+            <button class="btn-outline" onclick="location.reload()">خروج</button>
         </div>
     </div>
 </div>
@@ -109,23 +103,17 @@
 <script>
     window.onload = () => {
         let count = 0;
-        const progressFill = document.getElementById('progress-fill');
-        const percentText = document.getElementById('percent-text');
-        const splash = document.getElementById('splash-screen');
-        const main = document.getElementById('main-content');
-
         const interval = setInterval(() => {
             count++;
-            progressFill.style.width = count + "%";
-            percentText.innerText = count + "%";
-            
+            document.getElementById('progress-fill').style.width = count + "%";
+            document.getElementById('percent-text').innerText = count + "%";
             if (count >= 100) {
                 clearInterval(interval);
-                splash.style.opacity = '0';
+                document.getElementById('splash-screen').style.opacity = '0';
                 setTimeout(() => {
-                    splash.style.display = 'none';
-                    main.style.display = 'flex';
-                    setTimeout(() => main.style.opacity = '1', 50);
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'flex';
+                    setTimeout(() => document.getElementById('main-content').style.opacity = '1', 50);
                 }, 800);
             }
         }, 30); 
@@ -136,48 +124,34 @@
     let ctx = canvas.getContext("2d");
     let edgeMode = false;
 
-    function toggleEdge() { 
-        edgeMode = !edgeMode; 
-        document.getElementById('edge-btn').classList.toggle('active');
-    }
+    function toggleEdge() { edgeMode = !edgeMode; document.getElementById('edge-btn').classList.toggle('active'); }
 
     async function startCamera(){
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment", width: 1280, height: 720 } 
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             video.srcObject = stream;
             document.getElementById('start-btn').style.display = 'none';
             document.getElementById('ui-controls').style.display = 'block';
             document.getElementById('scan-line').style.display = 'block';
-            
             video.onloadedmetadata = () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 render();
             };
-        } catch (e) {
-            alert("خطأ: يرجى السماح بالوصول للكاميرا.");
-        }
+        } catch (e) { alert("خطأ في الكاميرا"); }
     }
 
     function render(){
-        if (video.paused || video.ended) return;
         ctx.drawImage(video, 0, 0);
         let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
         let d = imgData.data;
         let c = parseInt(document.getElementById('contrast').value);
         let f = (259*(c+255))/(255*(259-c));
-
         for(let i=0; i<d.length; i+=4){
-            let g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]; 
-            g = f*(g-128)+128; 
-            
-            if(edgeMode){
-                g = Math.abs(g-128)*2.5; 
-            } else {
-                g = g > 128 ? 255 : 0; 
-            }
+            let g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+            g = f*(g-128)+128;
+            if(edgeMode) g = Math.abs(g-128)*2.5;
+            else g = g > 128 ? 255 : 0;
             d[i] = d[i+1] = d[i+2] = g;
         }
         ctx.putImageData(imgData, 0, 0);
