@@ -1,138 +1,212 @@
+
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>كاشف الآية</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>كاشف الآية | نظام المسح الضوئي</title>
 
-<style>
-body{
-    margin:0;
-    background:#111;
-    color:white;
-    font-family:Arial;
-    text-align:center;
-}
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #d4af37; 
+            --accent-color: #2ecc71;  
+            --bg-dark: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-light: #ffffff;
+        }
 
-video{
-    display:none;
-}
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Tajawal', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-canvas{
-    width:100%;
-    max-width:500px;
-    border-radius:12px;
-    margin-top:10px;
-}
+        /* الجزء الجديد: العنوان العريض */
+        .official-header {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+            padding: 30px 0 15px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
 
-.controls{
-    margin-top:15px;
-}
+        .main-title {
+            font-size: 1.8rem;
+            font-weight: 900; /* خط عريض جداً */
+            color: var(--primary-color);
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
 
-input{
-    width:80%;
-}
+        .sub-title {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-top: 8px;
+            opacity: 0.8;
+        }
 
-button{
-    margin-top:10px;
-    padding:10px 20px;
-    border:none;
-    border-radius:8px;
-    background:#00c3ff;
-    color:black;
-    font-weight:bold;
-}
-</style>
+        .viewer-container {
+            position: relative;
+            width: 92%;
+            max-width: 480px;
+            margin: 25px auto;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid #333;
+            background: #000;
+        }
+
+        video { display: none; }
+        canvas { display: block; width: 100%; height: auto; }
+
+        .scan-overlay {
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .controls-panel {
+            width: 90%;
+            max-width: 480px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .control-group { margin-bottom: 20px; text-align: right; }
+        label { display: block; font-size: 0.95rem; margin-bottom: 12px; color: #ccc; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 5px;
+            accent-color: var(--primary-color);
+            appearance: none;
+        }
+
+        .buttons-row { display: flex; gap: 12px; margin-top: 10px; }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Tajawal';
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-main { background: var(--primary-color); color: #000; font-size: 1.1rem; }
+        .btn-outline { background: #222; border: 1.5px solid var(--accent-color); color: var(--accent-color); }
+        .btn-outline.active { background: var(--accent-color); color: white; }
+
+        #ui-controls { display: none; }
+    </style>
 </head>
 <body>
 
-<h2>كاشف الآية ✨</h2>
+<div class="official-header">
+    <h1 class="main-title">الإدارة العامة لمكافحة....</h1>
+    <div class="sub-title">نظام الكشف الضوئي المتقدم ✨</div>
+</div>
 
-<button onclick="startCamera()">ابدأ الكشف</button>
+<div class="viewer-container">
+    <div class="scan-overlay"></div>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+</div>
 
-<br/>
+<button id="start-btn" class="btn-main" style="width: 250px; margin-bottom: 30px;" onclick="startCamera()">ابدأ عملية الكشف</button>
 
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
+<div class="controls-panel" id="ui-controls">
+    <div class="control-group">
+        <label>مستوى التباين (Contrast)</label>
+        <input type="range" id="contrast" min="0" max="150" value="80">
+    </div>
 
-<div class="controls">
-    <p>Contrast</p>
-    <input type="range" id="contrast" min="0" max="150" value="80">
+    <div class="control-group">
+        <label>عزل الخلفية (Threshold)</label>
+        <input type="range" id="threshold" min="0" max="255" value="128">
+    </div>
 
-    <p>Threshold</p>
-    <input type="range" id="threshold" min="0" max="255" value="128">
-
-    <br/>
-    <button onclick="toggleEdge()">Edge Mode</button>
+    <div class="buttons-row">
+        <button id="edge-btn" class="btn-outline" onclick="toggleEdge()">وضع الحواف</button>
+        <button class="btn-outline" style="border-color: #555; color: #aaa;" onclick="location.reload()">إغلاق</button>
+    </div>
 </div>
 
 <script>
-let video = document.getElementById("video");
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+    let video = document.getElementById("video");
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d", { alpha: false });
+    let contrastSlider = document.getElementById("contrast");
+    let thresholdSlider = document.getElementById("threshold");
+    let edgeBtn = document.getElementById("edge-btn");
+    let edgeMode = false;
 
-let contrastSlider = document.getElementById("contrast");
-let thresholdSlider = document.getElementById("threshold");
-
-let edgeMode = false;
-
-function toggleEdge(){
-    edgeMode = !edgeMode;
-}
-
-async function startCamera(){
-    const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-    });
-    video.srcObject = stream;
-
-    video.onloadedmetadata = () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        processFrame();
+    function toggleEdge(){
+        edgeMode = !edgeMode;
+        edgeBtn.classList.toggle('active');
     }
-}
 
-function processFrame(){
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    async function startCamera(){
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment", width: 1280, height: 720 }
+            });
+            video.srcObject = stream;
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('ui-controls').style.display = 'block';
 
-    let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    let data = imageData.data;
-
-    let contrast = parseInt(contrastSlider.value);
-    let threshold = parseInt(thresholdSlider.value);
-
-    let factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-
-    for(let i=0;i<data.length;i+=4){
-
-        let r = data[i];
-        let g = data[i+1];
-        let b = data[i+2];
-
-        // Grayscale
-        let gray = 0.299*r + 0.587*g + 0.114*b;
-
-        // Contrast
-        gray = factor * (gray - 128) + 128;
-
-        if(edgeMode){
-            // Simple edge detection (Sobel-lite)
-            gray = Math.abs(gray - 128) * 2;
-        } else {
-            // Threshold
-            gray = gray > threshold ? 255 : 0;
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                processFrame();
+            }
+        } catch (err) {
+            alert("فشل الوصول للكاميرا. تأكد من إعطاء الإذن.");
         }
-
-        data[i] = gray;
-        data[i+1] = gray;
-        data[i+2] = gray;
     }
 
-    ctx.putImageData(imageData,0,0);
+    function processFrame(){
+        if (video.paused || video.ended) return;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+        let contrast = parseInt(contrastSlider.value);
+        let threshold = parseInt(thresholdSlider.value);
+        let factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
 
-    requestAnimationFrame(processFrame);
-}
+        for(let i=0; i<data.length; i+=4){
+            let r = data[i], g = data[i+1], b = data[i+2];
+            let gray = 0.2126*r + 0.7152*g + 0.0722*b;
+            gray = factor * (gray - 128) + 128;
+
+            if(edgeMode){
+                gray = Math.abs(gray - 128) * 2.5; 
+            } else {
+                gray = gray > threshold ? 255 : 0;
+            }
+            data[i] = data[i+1] = data[i+2] = gray;
+        }
+        ctx.putImageData(imageData, 0, 0);
+        requestAnimationFrame(processFrame);
+    }
 </script>
 
 </body>
