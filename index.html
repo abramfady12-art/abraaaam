@@ -3,26 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الوعود - Spin Wheel</title>
+    <title>نظام الوعود - Pro Edition</title>
     <style>
         :root {
-             --gold: #ffca28;
+            --gold: #ffca28;
             --main-bg: #000;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background: var(--main-bg);
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0;
-            color: white;
-            overflow: hidden;
         }
 
-        .container { text-align: center; width: 90%; max-width: 500px; }
+        /* كانفس الخلفية المتحركة */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* خلف كل العناصر */
+        }
+
+        .container { 
+            text-align: center; 
+            width: 90%; 
+            max-width: 500px; 
+            position: relative;
+            z-index: 1; 
+        }
 
         .screen { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s ease; }
         .active { display: flex; }
@@ -30,41 +48,31 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         input {
-            width: 80%; padding: 15px; border-radius: 12px; border: none;
+            width: 80%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
             margin: 20px 0; font-size: 1.2rem; text-align: center; outline: none;
+            background: rgba(255,255,255,0.1); color: white;
         }
 
-        .logo-img { width: 250px; margin-bottom: 20px; }
+        .logo-img { width: 250px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,202,40,0.3)); }
         #progress-text { font-size: 3rem; font-weight: bold; color: var(--gold); }
         .progress-bar-bg { width: 80%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
         #progress-fill { width: 0%; height: 100%; background: var(--gold); }
 
         .wheel-container { position: relative; margin: 20px 0; }
-        
         .wheel-outer {
             width: 280px; height: 280px; border: 10px solid rgba(255,255,255,0.2);
             border-radius: 50%;
             background: repeating-conic-gradient(from 0deg, #ffca28 0deg 90deg, #ffa000 90deg 180deg, #ffca28 180deg 270deg, #ffa000 270deg 360deg);
-            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
             transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
             position: relative;
         }
 
-        .wheel-label {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            font-weight: 900;
-            color: #000;
-            font-size: 1.1rem;
-        }
-
-        /* توزيع الأسماء بحيث يسهل حساب الزاوية */
-        .label-1 { transform: rotate(45deg) translateY(20px); }  /* يوحنا */
-        .label-2 { transform: rotate(135deg) translateY(20px); } /* مزامير */
-        .label-3 { transform: rotate(225deg) translateY(20px); } /* فيلبي */
-        .label-4 { transform: rotate(315deg) translateY(20px); } /* إشعياء */
+        .wheel-label { position: absolute; width: 100%; height: 100%; text-align: center; font-weight: 900; color: #000; font-size: 1.1rem; }
+        .label-1 { transform: rotate(45deg) translateY(20px); }
+        .label-2 { transform: rotate(135deg) translateY(20px); }
+        .label-3 { transform: rotate(225deg) translateY(20px); }
+        .label-4 { transform: rotate(315deg) translateY(20px); }
 
         .pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
@@ -74,9 +82,10 @@
         }
 
         .verse-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             padding: 25px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
             margin-top: 15px; opacity: 0; transform: translateY(15px);
             transition: 0.7s; width: 100%;
         }
@@ -85,11 +94,13 @@
         button {
             padding: 15px 45px; font-size: 1.2rem; cursor: pointer; border: none;
             border-radius: 50px; background: var(--gold); color: #000;
-            font-weight: 800; transition: 0.3s;
+            font-weight: 800; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,202,40,0.2);
         }
     </style>
 </head>
 <body>
+
+    <canvas id="bg-canvas"></canvas>
 
     <div class="container">
         <div id="screen-1" class="screen active">
@@ -108,7 +119,6 @@
 
         <div id="screen-3" class="screen">
             <div id="welcome-msg" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px;"></div>
-            
             <div class="wheel-container">
                 <div class="pointer"></div>
                 <div class="wheel-outer" id="wheel">
@@ -118,9 +128,7 @@
                     <div class="wheel-label label-4">إشعياء</div>
                 </div>
             </div>
-
             <button onclick="spinNow()" id="spin-btn">دَوّر العجلة 🎲</button>
-
             <div class="verse-card" id="verse-display">
                 <p id="verse-text" style="font-size: 1.5rem; line-height: 1.4;"></p>
                 <span id="verse-ref" style="color: var(--gold); font-weight: bold;"></span>
@@ -129,12 +137,61 @@
     </div>
 
     <script>
-        // مصفوفة الآيات مرتبطة بالأسماء الموجودة على العجلة
+        // --- أولاً: كود الخلفية المتحركة ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let lines = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.onresize = resize;
+        resize();
+
+        class Line {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.length = Math.random() * 100 + 50;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.angle = Math.random() * Math.PI * 2; // 360 درجة
+                this.opacity = Math.random() * 0.2 + 0.05; // لون رمادي خفيف جداً
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(200, 200, 200, ${this.opacity})`;
+                ctx.lineWidth = 1;
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + Math.cos(this.angle) * this.length, this.y + Math.sin(this.angle) * this.length);
+                ctx.stroke();
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+
+                if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
+                    this.reset();
+                }
+            }
+        }
+
+        for (let i = 0; i < 40; i++) lines.push(new Line());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            lines.forEach(l => l.draw());
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- ثانياً: منطق التطبيق ---
         const versesMap = [
-            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},   // المنطقة 1 (0-90)
-            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},      // المنطقة 2 (91-180)
-            {"text": "أستطيع كل شيء في المسيح الذي يُقويني.", "ref": "فيلبي 4: 13"}, // المنطقة 3 (181-270)
-            {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"}  // المنطقة 4 (271-360)
+            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},
+            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
+            {"text": "أستطيع كل شيء في المسيح الذي يُقويني.", "ref": "فيلبي 4: 13"},
+            {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"}
         ];
 
         let currentRotation = 0;
@@ -171,23 +228,15 @@
             btn.disabled = true;
             display.classList.remove('show');
 
-            // اختيار زاوية عشوائية
             const randomExtra = Math.floor(Math.random() * 360);
-            const totalSpin = 1800 + randomExtra; // 5 لفات كاملة + الزاوية العشوائية
+            const totalSpin = 1800 + randomExtra; 
             currentRotation += totalSpin;
-            
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
-                // حساب السفر الذي توقف عنده المؤشر (المؤشر ثابت في الأعلى عند 0 درجة)
-                // نحسب الدرجة الفعلية داخل الدائرة (0-359) بعد الدوران
                 const actualDeg = (360 - (currentRotation % 360)) % 360;
-                
-                // تحديد السفر بناءً على الزاوية (تقسيم 90 درجة لكل سفر)
                 let selectedIndex = Math.floor(actualDeg / 90);
-                
                 const selectedVerse = versesMap[selectedIndex];
-                
                 document.getElementById('verse-text').innerText = `"${selectedVerse.text}"`;
                 document.getElementById('verse-ref').innerText = selectedVerse.ref;
                 display.classList.add('show');
