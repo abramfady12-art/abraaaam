@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -31,79 +32,89 @@
             border-radius: 25px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         input {
             width: 80%;
             padding: 15px;
-            border-radius: 10px;
-            border: none;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
             margin: 20px 0;
             font-size: 1.1rem;
             text-align: center;
             outline: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
         }
 
-        /* شاشة العجلة (مخفية في البداية) */
+        /* شاشة العجلة */
         #wheel-screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
 
         .wheel-container { position: relative; margin: 20px 0; }
 
         .wheel-outer {
-            width: 250px;
-            height: 250px;
-            border: 8px solid rgba(255,255,255,0.3);
+            width: 260px;
+            height: 260px;
+            border: 10px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             background: repeating-conic-gradient(from 0deg, #ffca28 0deg 30deg, #ffa000 30deg 60deg);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            transition: transform 3.5s cubic-bezier(0.1, 0, 0.1, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
         }
 
         .pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             z-index: 10; width: 0; height: 0; 
-            border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 25px solid white;
+            border-left: 18px solid transparent; border-right: 18px solid transparent;
+            border-top: 28px solid white;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
         }
 
         .verse-display {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 15px;
             opacity: 0;
             transform: translateY(20px);
-            transition: 0.5s;
+            transition: 0.7s;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .verse-display.show { opacity: 1; transform: translateY(0); }
 
+        #verse-text { font-size: 1.4rem; line-height: 1.5; margin: 0 0 12px 0; font-weight: 500; }
+        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
+
         button {
-            padding: 12px 35px;
-            font-size: 1.1rem;
+            padding: 15px 45px;
+            font-size: 1.2rem;
             cursor: pointer;
             border: none;
             border-radius: 50px;
             background: var(--gold);
             color: #1e3c72;
-            font-weight: bold;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             transition: 0.3s;
         }
 
-        button:hover { transform: scale(1.05); background: #fff; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255,202,40,0.4); }
+        button:disabled { background: #999; cursor: not-allowed; transform: none; }
         
-        #user-welcome { font-size: 1.5rem; margin-bottom: 10px; color: var(--gold); }
+        #user-welcome { font-size: 1.6rem; margin-bottom: 5px; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="login-screen">
-            <h2>أهلاً بك يا بطل ✨</h2>
-            <p>اكتب اسمك عشان تستقبل وعدك</p>
-            <input type="text" id="username-input" placeholder="اسمك هنا...">
+            <h2 style="margin-top:0;">وعدك النهاردة 💡</h2>
+            <p>اكتب اسمك عشان تستقبل رسالتك</p>
+            <input type="text" id="username-input" placeholder="اسمك الجميل...">
             <br>
-            <button onclick="goToWheel()">استمرار</button>
+            <button onclick="goToWheel()">يلا بينا</button>
         </div>
 
         <div id="wheel-screen">
@@ -112,7 +123,7 @@
                 <div class="pointer"></div>
                 <div class="wheel-outer" id="wheel"></div>
             </div>
-            <button onclick="spinWheel()" id="spin-btn">Spin 🎲</button>
+            <button onclick="spinWheel()" id="spin-btn">دَوّر العجلة 🎲</button>
             
             <div class="verse-display" id="display">
                 <p id="verse-text"></p>
@@ -122,7 +133,7 @@
     </div>
 
     <script>
-        // هنا تحط الـ JSON اللي حولته من إكسيل
+        // مصفوفة الآيات (استبدلها بالـ JSON اللي طلع من الإكسيل)
         const myVerses = [
             {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
             {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
@@ -137,11 +148,12 @@
         function goToWheel() {
             const input = document.getElementById('username-input');
             if (input.value.trim() === "") {
-                alert("من فضلك دخل اسمك الأول");
+                alert("اكتب اسمك الأول يا بطل!");
                 return;
             }
             userName = input.value;
-            document.getElementById('user-welcome').innerText = `يا ${userName}، الرب بيقولك:`;
+            // التعديل المطلوب: ربنا بيقولك
+            document.getElementById('user-welcome').innerText = `يا ${userName}، ربنا بيقولك:`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('wheel-screen').style.display = 'flex';
         }
@@ -154,10 +166,12 @@
             btn.disabled = true;
             display.classList.remove('show');
 
-            const addedRotation = Math.floor(Math.random() * 360) + 1800; 
+            // دورات عشوائية (لفات كاملة + زاوية)
+            const addedRotation = Math.floor(Math.random() * 360) + 1440; 
             currentRotation += addedRotation;
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
+            // مدة اللفة 4 ثواني
             setTimeout(() => {
                 const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
                 document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
@@ -165,7 +179,8 @@
                 
                 display.classList.add('show');
                 btn.disabled = false;
-            }, 3500);
+                btn.innerText = "مرة كمان؟ 🔄";
+            }, 4000);
         }
     </script>
 </body>
