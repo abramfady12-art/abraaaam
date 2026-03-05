@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وعدك النهاردة - Spin Wheel</title>
+    <title>وعدك الشخصي ✨</title>
     <style>
         :root {
             --gold: #ffca28;
-            --main-bg: linear-gradient(135deg, #1e3c72, #2a5298);
+            --main-bg: #000; /* خلفية سوداء تليق بالشعار */
         }
 
         body {
@@ -25,84 +24,69 @@
 
         .container { text-align: center; width: 90%; max-width: 500px; }
 
-        /* شاشة إدخال الاسم */
+        /* شاشة الدخول */
         #login-screen {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             padding: 40px;
             border-radius: 25px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         input {
             width: 80%;
             padding: 15px;
             border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: none;
             margin: 20px 0;
             font-size: 1.1rem;
             text-align: center;
-            outline: none;
-            background: rgba(255,255,255,0.9);
-            color: #333;
+            background: #fff;
         }
 
-        /* شاشة العجلة */
+        /* شاشة الـ Spin */
         #wheel-screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
 
-        .wheel-container { position: relative; margin: 10px 0; }
+        .logo-img { width: 220px; margin-bottom: 10px; }
 
-        .wheel-outer {
-            width: 240px;
-            height: 240px;
-            border: 10px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            background: repeating-conic-gradient(from 0deg, #ffca28 0deg 30deg, #ffa000 30deg 60deg);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
-        }
-
-        .pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            z-index: 10; width: 0; height: 0; 
-            border-left: 18px solid transparent; border-right: 18px solid transparent;
-            border-top: 28px solid white;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
-        }
-
-        /* تصميم الكارت ومكوناته (الاسم، الصورة، الآية) */
-        .verse-display {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 25px;
-            border-radius: 20px;
-            margin-top: 10px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.7s;
-            border: 1px solid rgba(255,255,255,0.3);
-            display: flex;
+        /* العداد */
+        .loader-container {
+            width: 80%;
+            display: none; /* يظهر فقط أثناء التحميل */
             flex-direction: column;
             align-items: center;
-            gap: 15px; /* مسافة بين العناصر */
+        }
+
+        #progress-text { font-size: 2rem; font-weight: bold; color: var(--gold); margin-bottom: 5px; }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--gold);
+            transition: width 0.1s linear;
+        }
+
+        /* كارت الآية */
+        .verse-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
         }
 
         .verse-display.show { opacity: 1; transform: translateY(0); }
-
-        #user-welcome { font-size: 1.4rem; color: white; font-weight: bold; margin: 0; }
-
-        /* تنسيق الصورة */
-        .worshipper-img {
-            width: 100px; /* حجم الصورة */
-            height: 100px;
-            border-radius: 50%; /* دائرية */
-            object-fit: cover; /* لقص الصورة بشكل جيد */
-            border: 3px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        #verse-text { font-size: 1.4rem; line-height: 1.5; margin: 0; font-weight: 500; }
-        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.1rem; margin-top: -5px; }
 
         button {
             padding: 15px 45px;
@@ -111,92 +95,98 @@
             border: none;
             border-radius: 50px;
             background: var(--gold);
-            color: #1e3c72;
+            color: #000;
             font-weight: 800;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             transition: 0.3s;
         }
 
-        button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255,202,40,0.4); }
-        button:disabled { background: #999; cursor: not-allowed; transform: none; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="login-screen">
-            <h2 style="margin-top:0;">وعدك النهاردة 💡</h2>
-            <p>اكتب اسمك عشان تستقبل رسالتك</p>
-            <input type="text" id="username-input" placeholder="اسمك الجميل...">
+            <h2>مرحباً بك 💡</h2>
+            <input type="text" id="username-input" placeholder="اكتب اسمك هنا...">
             <br>
-            <button onclick="goToWheel()">يلا بينا</button>
+            <button onclick="goToWheel()">استمرار</button>
         </div>
 
         <div id="wheel-screen">
-            <div class="wheel-container">
-                <div class="pointer"></div>
-                <div class="wheel-outer" id="wheel"></div>
-            </div>
-            <button onclick="spinWheel()" id="spin-btn">دَوّر العجلة 🎲</button>
+            <img src="149499.png" alt="Logo" class="logo-img">
             
+            <div id="user-msg" style="font-size: 1.4rem; font-weight: bold;"></div>
+
+            <div class="loader-container" id="loader">
+                <div id="progress-text">0%</div>
+                <div class="progress-bar-bg">
+                    <div id="progress-fill"></div>
+                </div>
+            </div>
+
+            <button onclick="startLoading()" id="spin-btn">استقبل وعدك 🎲</button>
+
             <div class="verse-display" id="display">
-                <p id="user-welcome"></p> <img src="pope.jpg" alt="صورة الراعي/القديس" class="worshipper-img">
-                
-                <p id="verse-text"></p> <span id="verse-ref"></span> </div>
+                <p id="verse-text" style="font-size: 1.5rem; line-height: 1.4;"></p>
+                <span id="verse-ref" style="color: var(--gold); font-weight: bold;"></span>
+            </div>
         </div>
     </div>
 
     <script>
-        // مصفوفة الآيات (استبدلها بالـ JSON اللي طلع من الإكسيل)
         const myVerses = [
             {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
             {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
             {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
-            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},
-            {"text": "الرب راعي فلا يعوزني شيء.", "ref": "مزمور 23: 1"},
-            {"text": "على الله توكلت فلا أخاف.", "ref": "مزمور 56: 11"}
+            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"}
         ];
 
-        let currentRotation = 0;
         let userName = "";
 
         function goToWheel() {
             const input = document.getElementById('username-input');
-            if (input.value.trim() === "") {
-                alert("اكتب اسمك الأول يا بطل!");
-                return;
-            }
+            if (input.value.trim() === "") return alert("دخل اسمك الأول");
             userName = input.value;
-            // تجهيز جملة الترحيب
-            document.getElementById('user-welcome').innerText = `يا ${userName}، ربنا بيقولك:`;
+            document.getElementById('user-msg').innerText = `يا ${userName}، ربنا بيقولك:`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('wheel-screen').style.display = 'flex';
         }
 
-        function spinWheel() {
+        function startLoading() {
             const btn = document.getElementById('spin-btn');
+            const loader = document.getElementById('loader');
+            const progText = document.getElementById('progress-text');
+            const progFill = document.getElementById('progress-fill');
             const display = document.getElementById('display');
-            const wheel = document.getElementById('wheel');
 
             btn.disabled = true;
-            display.classList.remove('show'); // إخفاء الوعد القديم
+            display.classList.remove('show');
+            loader.style.display = 'flex';
+            
+            let count = 0;
+            const interval = setInterval(() => {
+                count++;
+                progText.innerText = count + "%";
+                progFill.style.width = count + "%";
 
-            // دورات عشوائية (لفات كاملة + زاوية)
-            const addedRotation = Math.floor(Math.random() * 360) + 1440; 
-            currentRotation += addedRotation;
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
+                if (count >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        showVerse();
+                        btn.disabled = false;
+                        btn.innerText = "مرة أخرى 🔄";
+                    }, 500);
+                }
+            }, 30); // السرعة: 3 ثواني تقريباً للوصول لـ 100%
+        }
 
-            // مدة اللفة 4 ثواني، بعدها يظهر الكارت الكامل
-            setTimeout(() => {
-                const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
-                document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
-                document.getElementById('verse-ref').innerText = randomVerse.ref;
-                
-                // إظهار الكارت الكامل (الاسم + الصورة + الآية)
-                display.classList.add('show');
-                btn.disabled = false;
-                btn.innerText = "مرة كمان؟ 🔄";
-            }, 4000);
+        function showVerse() {
+            const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
+            document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
+            document.getElementById('verse-ref').innerText = randomVerse.ref;
+            document.getElementById('display').classList.add('show');
         }
     </script>
 </body>
