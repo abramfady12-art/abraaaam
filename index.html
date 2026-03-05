@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وعودك الشخصية - Spin Wheel</title>
+    <title>وعدك النهاردة - Spin Wheel</title>
     <style>
         :root {
             --gold: #ffca28;
@@ -51,11 +51,11 @@
         /* شاشة العجلة */
         #wheel-screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
 
-        .wheel-container { position: relative; margin: 20px 0; }
+        .wheel-container { position: relative; margin: 10px 0; }
 
         .wheel-outer {
-            width: 260px;
-            height: 260px;
+            width: 240px;
+            height: 240px;
             border: 10px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             background: repeating-conic-gradient(from 0deg, #ffca28 0deg 30deg, #ffa000 30deg 60deg);
@@ -71,21 +71,38 @@
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
         }
 
+        /* تصميم الكارت ومكوناته (الاسم، الصورة، الآية) */
         .verse-display {
             background: rgba(255, 255, 255, 0.2);
             padding: 25px;
             border-radius: 20px;
-            margin-top: 15px;
+            margin-top: 10px;
             opacity: 0;
             transform: translateY(20px);
             transition: 0.7s;
             border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px; /* مسافة بين العناصر */
         }
 
         .verse-display.show { opacity: 1; transform: translateY(0); }
 
-        #verse-text { font-size: 1.4rem; line-height: 1.5; margin: 0 0 12px 0; font-weight: 500; }
-        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
+        #user-welcome { font-size: 1.4rem; color: white; font-weight: bold; margin: 0; }
+
+        /* تنسيق الصورة */
+        .worshipper-img {
+            width: 100px; /* حجم الصورة */
+            height: 100px;
+            border-radius: 50%; /* دائرية */
+            object-fit: cover; /* لقص الصورة بشكل جيد */
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #verse-text { font-size: 1.4rem; line-height: 1.5; margin: 0; font-weight: 500; }
+        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.1rem; margin-top: -5px; }
 
         button {
             padding: 15px 45px;
@@ -102,8 +119,6 @@
 
         button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255,202,40,0.4); }
         button:disabled { background: #999; cursor: not-allowed; transform: none; }
-        
-        #user-welcome { font-size: 1.6rem; margin-bottom: 5px; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -118,7 +133,6 @@
         </div>
 
         <div id="wheel-screen">
-            <div id="user-welcome"></div>
             <div class="wheel-container">
                 <div class="pointer"></div>
                 <div class="wheel-outer" id="wheel"></div>
@@ -126,9 +140,9 @@
             <button onclick="spinWheel()" id="spin-btn">دَوّر العجلة 🎲</button>
             
             <div class="verse-display" id="display">
-                <p id="verse-text"></p>
-                <span id="verse-ref"></span>
-            </div>
+                <p id="user-welcome"></p> <img src="pope.jpg" alt="صورة الراعي/القديس" class="worshipper-img">
+                
+                <p id="verse-text"></p> <span id="verse-ref"></span> </div>
         </div>
     </div>
 
@@ -139,7 +153,8 @@
             {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
             {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
             {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},
-            {"text": "الرب راعي فلا يعوزني شيء.", "ref": "مزمور 23: 1"}
+            {"text": "الرب راعي فلا يعوزني شيء.", "ref": "مزمور 23: 1"},
+            {"text": "على الله توكلت فلا أخاف.", "ref": "مزمور 56: 11"}
         ];
 
         let currentRotation = 0;
@@ -152,7 +167,7 @@
                 return;
             }
             userName = input.value;
-            // التعديل المطلوب: ربنا بيقولك
+            // تجهيز جملة الترحيب
             document.getElementById('user-welcome').innerText = `يا ${userName}، ربنا بيقولك:`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('wheel-screen').style.display = 'flex';
@@ -164,19 +179,20 @@
             const wheel = document.getElementById('wheel');
 
             btn.disabled = true;
-            display.classList.remove('show');
+            display.classList.remove('show'); // إخفاء الوعد القديم
 
             // دورات عشوائية (لفات كاملة + زاوية)
             const addedRotation = Math.floor(Math.random() * 360) + 1440; 
             currentRotation += addedRotation;
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-            // مدة اللفة 4 ثواني
+            // مدة اللفة 4 ثواني، بعدها يظهر الكارت الكامل
             setTimeout(() => {
                 const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
                 document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
                 document.getElementById('verse-ref').innerText = randomVerse.ref;
                 
+                // إظهار الكارت الكامل (الاسم + الصورة + الآية)
                 display.classList.add('show');
                 btn.disabled = false;
                 btn.innerText = "مرة كمان؟ 🔄";
