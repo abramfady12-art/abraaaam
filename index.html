@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وعدك الشخصي ✨</title>
+    <title>نظام الوعود الشخصي</title>
     <style>
         :root {
             --gold: #ffca28;
-            --main-bg: #000; /* خلفية سوداء تليق بالشعار */
+            --main-bg: #000;
         }
 
         body {
@@ -24,14 +24,28 @@
 
         .container { text-align: center; width: 90%; max-width: 500px; }
 
-        /* شاشة الدخول */
-        #login-screen {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+        /* شاشة 1: إدخال الاسم */
+        #screen-name {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
+        /* شاشة 2: اللوجو والعداد */
+        #screen-logo {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* شاشة 3: الآية */
+        #screen-verse {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-img { width: 250px; margin-bottom: 20px; }
 
         input {
             width: 80%;
@@ -39,29 +53,22 @@
             border-radius: 12px;
             border: none;
             margin: 20px 0;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-align: center;
-            background: #fff;
+            outline: none;
         }
 
-        /* شاشة الـ Spin */
-        #wheel-screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
-
-        .logo-img { width: 220px; margin-bottom: 10px; }
-
-        /* العداد */
-        .loader-container {
-            width: 80%;
-            display: none; /* يظهر فقط أثناء التحميل */
-            flex-direction: column;
-            align-items: center;
+        /* تنسيق العداد */
+        #progress-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin: 10px 0;
         }
-
-        #progress-text { font-size: 2rem; font-weight: bold; color: var(--gold); margin-bottom: 5px; }
 
         .progress-bar-bg {
-            width: 100%;
-            height: 10px;
+            width: 80%;
+            height: 8px;
             background: rgba(255,255,255,0.1);
             border-radius: 10px;
             overflow: hidden;
@@ -71,26 +78,29 @@
             width: 0%;
             height: 100%;
             background: var(--gold);
-            transition: width 0.1s linear;
         }
 
-        /* كارت الآية */
-        .verse-display {
+        /* تنسيق كارت الآية */
+        .verse-card {
             background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
+            padding: 30px;
             border-radius: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: 0.5s;
             border: 1px solid rgba(255,255,255,0.2);
-            width: 100%;
+            box-shadow: 0 0 20px rgba(255, 202, 40, 0.2);
+            animation: fadeIn 0.8s ease-in-out;
         }
 
-        .verse-display.show { opacity: 1; transform: translateY(0); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #verse-text { font-size: 1.6rem; line-height: 1.5; margin-bottom: 15px; }
+        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
 
         button {
-            padding: 15px 45px;
-            font-size: 1.2rem;
+            padding: 15px 40px;
+            font-size: 1.1rem;
             cursor: pointer;
             border: none;
             border-radius: 50px;
@@ -100,41 +110,43 @@
             transition: 0.3s;
         }
 
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="login-screen">
-            <h2>مرحباً بك 💡</h2>
-            <input type="text" id="username-input" placeholder="اكتب اسمك هنا...">
+        
+        <div id="screen-name">
+            <h2 style="margin-bottom: 10px;">أهلاً بك يا بطل</h2>
+            <p style="opacity: 0.8;">اكتب اسمك للبدء</p>
+            <input type="text" id="username-input" placeholder="اسمك هنا...">
+            <button onclick="showLogoScreen()">دخول النظام</button>
+        </div>
+
+        <div id="screen-logo">
+            <img src="149499.png" alt="شعار الإدارة" class="logo-img">
+            <div id="loading-msg" style="font-size: 1.1rem; margin-bottom: 10px;">جاري استخراج الوعد...</div>
+            <div id="progress-text">0%</div>
+            <div class="progress-bar-bg">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="screen-verse">
+            <div id="welcome-msg" style="font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;"></div>
+            <div class="verse-card">
+                <p id="verse-text"></p>
+                <span id="verse-ref"></span>
+            </div>
             <br>
-            <button onclick="goToWheel()">استمرار</button>
+            <button onclick="resetApp()">مرة أخرى 🔄</button>
         </div>
 
-        <div id="wheel-screen">
-            <img src="149499.png" alt="Logo" class="logo-img">
-            
-            <div id="user-msg" style="font-size: 1.4rem; font-weight: bold;"></div>
-
-            <div class="loader-container" id="loader">
-                <div id="progress-text">0%</div>
-                <div class="progress-bar-bg">
-                    <div id="progress-fill"></div>
-                </div>
-            </div>
-
-            <button onclick="startLoading()" id="spin-btn">استقبل وعدك 🎲</button>
-
-            <div class="verse-display" id="display">
-                <p id="verse-text" style="font-size: 1.5rem; line-height: 1.4;"></p>
-                <span id="verse-ref" style="color: var(--gold); font-weight: bold;"></span>
-            </div>
-        </div>
     </div>
 
     <script>
+        // مصفوفة الآيات (يمكنك استبدالها بالـ JSON الخاص بك)
         const myVerses = [
             {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
             {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
@@ -144,27 +156,27 @@
 
         let userName = "";
 
-        function goToWheel() {
+        // الانتقال للصفحة الثانية (اللوجو) وبدء العداد
+        function showLogoScreen() {
             const input = document.getElementById('username-input');
-            if (input.value.trim() === "") return alert("دخل اسمك الأول");
+            if (input.value.trim() === "") {
+                alert("من فضلك ادخل اسمك أولاً");
+                return;
+            }
             userName = input.value;
-            document.getElementById('user-msg').innerText = `يا ${userName}، ربنا بيقولك:`;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('wheel-screen').style.display = 'flex';
+            
+            document.getElementById('screen-name').style.display = 'none';
+            document.getElementById('screen-logo').style.display = 'flex';
+            
+            startCounter();
         }
 
-        function startLoading() {
-            const btn = document.getElementById('spin-btn');
-            const loader = document.getElementById('loader');
+        // منطق العداد من 0 لـ 100
+        function startCounter() {
+            let count = 0;
             const progText = document.getElementById('progress-text');
             const progFill = document.getElementById('progress-fill');
-            const display = document.getElementById('display');
 
-            btn.disabled = true;
-            display.classList.remove('show');
-            loader.style.display = 'flex';
-            
-            let count = 0;
             const interval = setInterval(() => {
                 count++;
                 progText.innerText = count + "%";
@@ -173,20 +185,33 @@
                 if (count >= 100) {
                     clearInterval(interval);
                     setTimeout(() => {
-                        loader.style.display = 'none';
-                        showVerse();
-                        btn.disabled = false;
-                        btn.innerText = "مرة أخرى 🔄";
-                    }, 500);
+                        showVerseScreen();
+                    }, 600);
                 }
-            }, 30); // السرعة: 3 ثواني تقريباً للوصول لـ 100%
+            }, 30); // السرعة الإجمالية حوالي 3 ثواني
         }
 
-        function showVerse() {
+        // الانتقال للصفحة الثالثة (الآية)
+        function showVerseScreen() {
+            document.getElementById('screen-logo').style.display = 'none';
+            document.getElementById('screen-verse').style.display = 'flex';
+            
+            // تحديث رسالة الترحيب باسم المستخدم
+            document.getElementById('welcome-msg').innerText = `يا ${userName}، ربنا بيقولك:`;
+            
+            // اختيار آية عشوائية
             const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
             document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
             document.getElementById('verse-ref').innerText = randomVerse.ref;
-            document.getElementById('display').classList.add('show');
+        }
+
+        // إعادة تشغيل النظام
+        function resetApp() {
+            document.getElementById('screen-verse').style.display = 'none';
+            document.getElementById('screen-name').style.display = 'flex';
+            document.getElementById('username-input').value = "";
+            document.getElementById('progress-fill').style.width = "0%";
+            document.getElementById('progress-text').innerText = "0%";
         }
     </script>
 </body>
