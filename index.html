@@ -24,14 +24,15 @@
             align-items: center;
         }
 
-        /* كانفس الخلفية المتحركة */
+        /* الكانفس المسؤول عن الخطوط المتحركة في الخلفية */
         #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* خلف كل العناصر */
+            z-index: 0; /* خلف العناصر */
+            pointer-events: none;
         }
 
         .container { 
@@ -39,7 +40,7 @@
             width: 90%; 
             max-width: 500px; 
             position: relative;
-            z-index: 1; 
+            z-index: 10; /* فوق الخلفية */
         }
 
         .screen { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s ease; }
@@ -137,7 +138,7 @@
     </div>
 
     <script>
-        // --- أولاً: كود الخلفية المتحركة ---
+        // --- كود الخلفية المتحركة (360 درجة) ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let lines = [];
@@ -146,47 +147,62 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
-        window.onresize = resize;
+        window.addEventListener('resize', resize);
         resize();
 
-        class Line {
+        class BackgroundLine {
             constructor() {
-                this.reset();
+                this.init();
             }
-            reset() {
+            init() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.length = Math.random() * 100 + 50;
-                this.speed = Math.random() * 0.5 + 0.2;
-                this.angle = Math.random() * Math.PI * 2; // 360 درجة
-                this.opacity = Math.random() * 0.2 + 0.05; // لون رمادي خفيف جداً
+                this.length = Math.random() * 150 + 50;
+                this.speed = Math.random() * 1 + 0.5; // السرعة
+                this.angle = Math.random() * Math.PI * 2; // زاوية التحرك 360 درجة
+                this.opacity = Math.random() * 0.3 + 0.1; // شفافية الخطوط
             }
-            draw() {
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(200, 200, 200, ${this.opacity})`;
-                ctx.lineWidth = 1;
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(this.x + Math.cos(this.angle) * this.length, this.y + Math.sin(this.angle) * this.length);
-                ctx.stroke();
+            update() {
+                // تحريك الخط بناءً على الزاوية
                 this.x += Math.cos(this.angle) * this.speed;
                 this.y += Math.sin(this.angle) * this.speed;
 
-                if (this.x < -100 || this.x > canvas.width + 100 || this.y < -100 || this.y > canvas.height + 100) {
-                    this.reset();
-                }
+                // لو الخط طلع بره الشاشة يرجع من الناحية التانية
+                if (this.x < -200) this.x = canvas.width + 200;
+                if (this.x > canvas.width + 200) this.x = -200;
+                if (this.y < -200) this.y = canvas.height + 200;
+                if (this.y > canvas.height + 200) this.y = -200;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(150, 150, 150, ${this.opacity})`; // لون رمادي خفيف
+                ctx.lineWidth = 1;
+                ctx.moveTo(this.x, this.y);
+                // رسم الخط في اتجاه حركته
+                ctx.lineTo(
+                    this.x + Math.cos(this.angle) * this.length, 
+                    this.y + Math.sin(this.angle) * this.length
+                );
+                ctx.stroke();
             }
         }
 
-        for (let i = 0; i < 40; i++) lines.push(new Line());
+        // إنشاء 50 خط في الخلفية
+        for (let i = 0; i < 50; i++) {
+            lines.push(new BackgroundLine());
+        }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            lines.forEach(l => l.draw());
+            lines.forEach(line => {
+                line.update();
+                line.draw();
+            });
             requestAnimationFrame(animate);
         }
         animate();
 
-        // --- ثانياً: منطق التطبيق ---
+        // --- منطق التطبيق (الأسامي والآيات) ---
         const versesMap = [
             {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},
             {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
