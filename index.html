@@ -3,122 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وعود الكتاب المقدس - Spin</title>
+    <title>وعودك الشخصية - Spin Wheel</title>
     <style>
-        /* CSS: تصميم عصري مريح للعين (Glassmorphism) */
+        :root {
+            --gold: #ffca28;
+            --main-bg: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: var(--main-bg);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
             color: white;
+            overflow: hidden;
         }
 
-        .container {
-            text-align: center;
-            width: 90%;
-            max-width: 500px;
-        }
+        .container { text-align: center; width: 90%; max-width: 500px; }
 
-        .verse-card {
+        /* شاشة إدخال الاسم */
+        #login-screen {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px 20px;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.5s ease;
+            padding: 40px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        #verse-text {
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            font-weight: 300;
+        input {
+            width: 80%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
         }
 
-        #verse-ref {
-            color: #4facfe; /* لون سماوي هادئ */
-            font-weight: bold;
-            font-size: 1.2rem;
+        /* شاشة العجلة (مخفية في البداية) */
+        #wheel-screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
+
+        .wheel-container { position: relative; margin: 20px 0; }
+
+        .wheel-outer {
+            width: 250px;
+            height: 250px;
+            border: 8px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            background: repeating-conic-gradient(from 0deg, #ffca28 0deg 30deg, #ffa000 30deg 60deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform 3.5s cubic-bezier(0.1, 0, 0.1, 1);
         }
+
+        .pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 0; height: 0; 
+            border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 25px solid white;
+        }
+
+        .verse-display {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s;
+        }
+
+        .verse-display.show { opacity: 1; transform: translateY(0); }
 
         button {
-            margin-top: 35px;
-            padding: 15px 45px;
-            font-size: 1.2rem;
+            padding: 12px 35px;
+            font-size: 1.1rem;
             cursor: pointer;
             border: none;
             border-radius: 50px;
-            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-            color: #000;
+            background: var(--gold);
+            color: #1e3c72;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
             transition: 0.3s;
         }
 
-        button:hover { transform: scale(1.05); filter: brightness(1.1); }
-        button:active { transform: scale(0.95); }
-
-        /* تأثير الدوران الـ Spin */
-        .spin-anim {
-            animation: spinEffect 0.6s ease-in-out;
-        }
-
-        @keyframes spinEffect {
-            0% { transform: scale(1) rotateY(0deg); opacity: 1; }
-            50% { transform: scale(0.8) rotateY(180deg); opacity: 0.2; }
-            100% { transform: scale(1) rotateY(360deg); opacity: 1; }
-        }
+        button:hover { transform: scale(1.05); background: #fff; }
+        
+        #user-welcome { font-size: 1.5rem; margin-bottom: 10px; color: var(--gold); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2 style="margin-bottom: 25px;">آية مشجعة للشباب ✨</h2>
-        
-        <div class="verse-card" id="card">
-            <p id="verse-text">"استعد لسماع رسالة خاصة.."</p>
-            <span id="verse-ref"></span>
+        <div id="login-screen">
+            <h2>أهلاً بك يا بطل ✨</h2>
+            <p>اكتب اسمك عشان تستقبل وعدك</p>
+            <input type="text" id="username-input" placeholder="اسمك هنا...">
+            <br>
+            <button onclick="goToWheel()">استمرار</button>
         </div>
 
-        <button onclick="getNewVerse()">Spin 🎲</button>
+        <div id="wheel-screen">
+            <div id="user-welcome"></div>
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <div class="wheel-outer" id="wheel"></div>
+            </div>
+            <button onclick="spinWheel()" id="spin-btn">Spin 🎲</button>
+            
+            <div class="verse-display" id="display">
+                <p id="verse-text"></p>
+                <span id="verse-ref"></span>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- هنا تضع الآيات التي حولتها من إكسيل ---
-        // انسخ الـ JSON الناتج من الموقع وضعه مكان المصفوفة دي
+        // هنا تحط الـ JSON اللي حولته من إكسيل
         const myVerses = [
             {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
             {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
-            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"}
-            // استمر في اللصق هنا...
+            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
+            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},
+            {"text": "الرب راعي فلا يعوزني شيء.", "ref": "مزمور 23: 1"}
         ];
 
-        function getNewVerse() {
-            const card = document.getElementById('card');
-            const textEl = document.getElementById('verse-text');
-            const refEl = document.getElementById('verse-ref');
+        let currentRotation = 0;
+        let userName = "";
 
-            // إضافة الأنيميشن
-            card.classList.add('spin-anim');
+        function goToWheel() {
+            const input = document.getElementById('username-input');
+            if (input.value.trim() === "") {
+                alert("من فضلك دخل اسمك الأول");
+                return;
+            }
+            userName = input.value;
+            document.getElementById('user-welcome').innerText = `يا ${userName}، الرب بيقولك:`;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('wheel-screen').style.display = 'flex';
+        }
 
-            // تغيير المحتوى في منتصف الأنيميشن
+        function spinWheel() {
+            const btn = document.getElementById('spin-btn');
+            const display = document.getElementById('display');
+            const wheel = document.getElementById('wheel');
+
+            btn.disabled = true;
+            display.classList.remove('show');
+
+            const addedRotation = Math.floor(Math.random() * 360) + 1800; 
+            currentRotation += addedRotation;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
             setTimeout(() => {
                 const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
-                textEl.innerText = `"${randomVerse.text}"`;
-                refEl.innerText = randomVerse.ref;
-            }, 300);
-
-            // إزالة الكلاس لتكرار الحركة
-            setTimeout(() => card.classList.remove('spin-anim'), 600);
+                document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
+                document.getElementById('verse-ref').innerText = randomVerse.ref;
+                
+                display.classList.add('show');
+                btn.disabled = false;
+            }, 3500);
         }
     </script>
 </body>
