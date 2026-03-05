@@ -50,7 +50,6 @@
             position: relative;
         }
 
-        /* نصوص الأسفار موزعة على العجلة */
         .wheel-label {
             position: absolute;
             width: 100%;
@@ -61,10 +60,11 @@
             font-size: 1.1rem;
         }
 
-        .label-1 { transform: rotate(45deg) translateY(20px); }
-        .label-2 { transform: rotate(135deg) translateY(20px); }
-        .label-3 { transform: rotate(225deg) translateY(20px); }
-        .label-4 { transform: rotate(315deg) translateY(20px); }
+        /* توزيع الأسماء بحيث يسهل حساب الزاوية */
+        .label-1 { transform: rotate(45deg) translateY(20px); }  /* يوحنا */
+        .label-2 { transform: rotate(135deg) translateY(20px); } /* مزامير */
+        .label-3 { transform: rotate(225deg) translateY(20px); } /* فيلبي */
+        .label-4 { transform: rotate(315deg) translateY(20px); } /* إشعياء */
 
         .pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
@@ -129,11 +129,12 @@
     </div>
 
     <script>
-        const myVerses = [
-            {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
-            {"text": "أستطيع كل شيء في المسيح الذي يُقويني.", "ref": "فيلبي 4: 13"},
-            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
-            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"}
+        // مصفوفة الآيات مرتبطة بالأسماء الموجودة على العجلة
+        const versesMap = [
+            {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"},   // المنطقة 1 (0-90)
+            {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},      // المنطقة 2 (91-180)
+            {"text": "أستطيع كل شيء في المسيح الذي يُقويني.", "ref": "فيلبي 4: 13"}, // المنطقة 3 (181-270)
+            {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"}  // المنطقة 4 (271-360)
         ];
 
         let currentRotation = 0;
@@ -170,14 +171,25 @@
             btn.disabled = true;
             display.classList.remove('show');
 
-            const extraDeg = Math.floor(Math.random() * 360) + 1800; 
-            currentRotation += extraDeg;
+            // اختيار زاوية عشوائية
+            const randomExtra = Math.floor(Math.random() * 360);
+            const totalSpin = 1800 + randomExtra; // 5 لفات كاملة + الزاوية العشوائية
+            currentRotation += totalSpin;
+            
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
-                const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
-                document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
-                document.getElementById('verse-ref').innerText = randomVerse.ref;
+                // حساب السفر الذي توقف عنده المؤشر (المؤشر ثابت في الأعلى عند 0 درجة)
+                // نحسب الدرجة الفعلية داخل الدائرة (0-359) بعد الدوران
+                const actualDeg = (360 - (currentRotation % 360)) % 360;
+                
+                // تحديد السفر بناءً على الزاوية (تقسيم 90 درجة لكل سفر)
+                let selectedIndex = Math.floor(actualDeg / 90);
+                
+                const selectedVerse = versesMap[selectedIndex];
+                
+                document.getElementById('verse-text').innerText = `"${selectedVerse.text}"`;
+                document.getElementById('verse-ref').innerText = selectedVerse.ref;
                 display.classList.add('show');
                 btn.disabled = false;
                 btn.innerText = "لف تاني؟ 🔄";
