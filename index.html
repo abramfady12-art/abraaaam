@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الوعود الشخصي</title>
+    <title>نظام الوعود - Spin Wheel</title>
     <style>
         :root {
             --gold: #ffca28;
@@ -24,194 +24,164 @@
 
         .container { text-align: center; width: 90%; max-width: 500px; }
 
-        /* شاشة 1: إدخال الاسم */
-        #screen-name {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .screen { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s ease; }
+        .active { display: flex; }
 
-        /* شاشة 2: اللوجو والعداد */
-        #screen-logo {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* شاشة 3: الآية */
-        #screen-verse {
-            display: none;
-            flex-direction: column;
-            align-items: center;
+        input {
+            width: 80%; padding: 15px; border-radius: 12px; border: none;
+            margin: 20px 0; font-size: 1.2rem; text-align: center; outline: none;
         }
 
         .logo-img { width: 250px; margin-bottom: 20px; }
+        #progress-text { font-size: 3rem; font-weight: bold; color: var(--gold); }
+        .progress-bar-bg { width: 80%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+        #progress-fill { width: 0%; height: 100%; background: var(--gold); }
 
-        input {
-            width: 80%;
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
-            margin: 20px 0;
-            font-size: 1.2rem;
-            text-align: center;
-            outline: none;
+        .wheel-container { position: relative; margin: 20px 0; }
+        
+        .wheel-outer {
+            width: 280px; height: 280px; border: 10px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            background: repeating-conic-gradient(from 0deg, #ffca28 0deg 90deg, #ffa000 90deg 180deg, #ffca28 180deg 270deg, #ffa000 270deg 360deg);
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
+            position: relative;
         }
 
-        /* تنسيق العداد */
-        #progress-text {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--gold);
-            margin: 10px 0;
-        }
-
-        .progress-bar-bg {
-            width: 80%;
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        #progress-fill {
-            width: 0%;
+        /* نصوص الأسفار موزعة على العجلة */
+        .wheel-label {
+            position: absolute;
+            width: 100%;
             height: 100%;
-            background: var(--gold);
+            text-align: center;
+            font-weight: 900;
+            color: #000;
+            font-size: 1.1rem;
         }
 
-        /* تنسيق كارت الآية */
+        .label-1 { transform: rotate(45deg) translateY(20px); }
+        .label-2 { transform: rotate(135deg) translateY(20px); }
+        .label-3 { transform: rotate(225deg) translateY(20px); }
+        .label-4 { transform: rotate(315deg) translateY(20px); }
+
+        .pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 0; height: 0; 
+            border-left: 18px solid transparent; border-right: 18px solid transparent;
+            border-top: 28px solid white;
+        }
+
         .verse-card {
             background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 20px;
+            padding: 25px; border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 0 20px rgba(255, 202, 40, 0.2);
-            animation: fadeIn 0.8s ease-in-out;
+            margin-top: 15px; opacity: 0; transform: translateY(15px);
+            transition: 0.7s; width: 100%;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        #verse-text { font-size: 1.6rem; line-height: 1.5; margin-bottom: 15px; }
-        #verse-ref { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        .verse-card.show { opacity: 1; transform: translateY(0); }
 
         button {
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 50px;
-            background: var(--gold);
-            color: #000;
-            font-weight: 800;
-            transition: 0.3s;
+            padding: 15px 45px; font-size: 1.2rem; cursor: pointer; border: none;
+            border-radius: 50px; background: var(--gold); color: #000;
+            font-weight: 800; transition: 0.3s;
         }
-
-        button:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        
-        <div id="screen-name">
-            <h2 style="margin-bottom: 10px;">أهلاً بك يا بطل</h2>
-            <p style="opacity: 0.8;">اكتب اسمك للبدء</p>
+        <div id="screen-1" class="screen active">
+            <h2>أهلاً بك يا بطل ✨</h2>
             <input type="text" id="username-input" placeholder="اسمك هنا...">
-            <button onclick="showLogoScreen()">دخول النظام</button>
+            <button onclick="navTo(2)">دخول النظام</button>
         </div>
 
-        <div id="screen-logo">
+        <div id="screen-2" class="screen">
             <img src="WhatsApp Image 2026-03-02 at 12.34.34 AM.jpeg" alt="شعار الإدارة" class="logo-img">
-            <div id="loading-msg" style="font-size: 1.1rem; margin-bottom: 10px;">جاري استخراج الوعد...</div>
             <div id="progress-text">0%</div>
             <div class="progress-bar-bg">
                 <div id="progress-fill"></div>
             </div>
         </div>
 
-        <div id="screen-verse">
-            <div id="welcome-msg" style="font-size: 1.5rem; margin-bottom: 20px; font-weight: bold;"></div>
-            <div class="verse-card">
-                <p id="verse-text"></p>
-                <span id="verse-ref"></span>
+        <div id="screen-3" class="screen">
+            <div id="welcome-msg" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px;"></div>
+            
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <div class="wheel-outer" id="wheel">
+                    <div class="wheel-label label-1">يوحنا</div>
+                    <div class="wheel-label label-2">مزامير</div>
+                    <div class="wheel-label label-3">فيلبي</div>
+                    <div class="wheel-label label-4">إشعياء</div>
+                </div>
             </div>
-            <br>
-            <button onclick="resetApp()">مرة أخرى 🔄</button>
-        </div>
 
+            <button onclick="spinNow()" id="spin-btn">دَوّر العجلة 🎲</button>
+
+            <div class="verse-card" id="verse-display">
+                <p id="verse-text" style="font-size: 1.5rem; line-height: 1.4;"></p>
+                <span id="verse-ref" style="color: var(--gold); font-weight: bold;"></span>
+            </div>
+        </div>
     </div>
 
     <script>
-        // مصفوفة الآيات (يمكنك استبدالها بالـ JSON الخاص بك)
         const myVerses = [
             {"text": "لا تخف لأني معك. لا تتلفت لأني إلهك.", "ref": "إشعياء 41: 10"},
-            {"text": "أستطيع كل شيء في المسيح الذي يقويني.", "ref": "فيلبي 4: 13"},
+            {"text": "أستطيع كل شيء في المسيح الذي يُقويني.", "ref": "فيلبي 4: 13"},
             {"text": "الرب نوري وخلاصي ممن أخاف؟", "ref": "مزمور 27: 1"},
             {"text": "سلاماً أترك لكم.. سلامي أعطيكم.", "ref": "يوحنا 14: 27"}
         ];
 
-        let userName = "";
+        let currentRotation = 0;
 
-        // الانتقال للصفحة الثانية (اللوجو) وبدء العداد
-        function showLogoScreen() {
+        function navTo(screenNum) {
             const input = document.getElementById('username-input');
-            if (input.value.trim() === "") {
-                alert("من فضلك ادخل اسمك أولاً");
-                return;
-            }
-            userName = input.value;
-            
-            document.getElementById('screen-name').style.display = 'none';
-            document.getElementById('screen-logo').style.display = 'flex';
-            
-            startCounter();
+            if (input.value.trim() === "") return alert("ادخل اسمك أولاً");
+            document.getElementById('screen-1').classList.remove('active');
+            document.getElementById('screen-2').classList.add('active');
+            startLoading();
         }
 
-        // منطق العداد من 0 لـ 100
-        function startCounter() {
+        function startLoading() {
             let count = 0;
-            const progText = document.getElementById('progress-text');
-            const progFill = document.getElementById('progress-fill');
-
             const interval = setInterval(() => {
                 count++;
-                progText.innerText = count + "%";
-                progFill.style.width = count + "%";
-
+                document.getElementById('progress-text').innerText = count + "%";
+                document.getElementById('progress-fill').style.width = count + "%";
                 if (count >= 100) {
                     clearInterval(interval);
                     setTimeout(() => {
-                        showVerseScreen();
+                        document.getElementById('screen-2').classList.remove('active');
+                        document.getElementById('screen-3').classList.add('active');
+                        document.getElementById('welcome-msg').innerText = `يا ${document.getElementById('username-input').value}، ربنا بيقولك:`;
                     }, 600);
                 }
-            }, 30); // السرعة الإجمالية حوالي 3 ثواني
+            }, 30);
         }
 
-        // الانتقال للصفحة الثالثة (الآية)
-        function showVerseScreen() {
-            document.getElementById('screen-logo').style.display = 'none';
-            document.getElementById('screen-verse').style.display = 'flex';
-            
-            // تحديث رسالة الترحيب باسم المستخدم
-            document.getElementById('welcome-msg').innerText = `يا ${userName}، ربنا بيقولك:`;
-            
-            // اختيار آية عشوائية
-            const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
-            document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
-            document.getElementById('verse-ref').innerText = randomVerse.ref;
-        }
+        function spinNow() {
+            const btn = document.getElementById('spin-btn');
+            const wheel = document.getElementById('wheel');
+            const display = document.getElementById('verse-display');
+            btn.disabled = true;
+            display.classList.remove('show');
 
-        // إعادة تشغيل النظام
-        function resetApp() {
-            document.getElementById('screen-verse').style.display = 'none';
-            document.getElementById('screen-name').style.display = 'flex';
-            document.getElementById('username-input').value = "";
-            document.getElementById('progress-fill').style.width = "0%";
-            document.getElementById('progress-text').innerText = "0%";
+            const extraDeg = Math.floor(Math.random() * 360) + 1800; 
+            currentRotation += extraDeg;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                const randomVerse = myVerses[Math.floor(Math.random() * myVerses.length)];
+                document.getElementById('verse-text').innerText = `"${randomVerse.text}"`;
+                document.getElementById('verse-ref').innerText = randomVerse.ref;
+                display.classList.add('show');
+                btn.disabled = false;
+                btn.innerText = "لف تاني؟ 🔄";
+            }, 4000);
         }
     </script>
 </body>
